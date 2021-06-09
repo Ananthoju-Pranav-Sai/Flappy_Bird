@@ -2,9 +2,11 @@
 using namespace sf;
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML works!");
-    sf::CircleShape shape(200.f);
-    shape.setFillColor(sf::Color::Red);
+    RenderWindow window(sf::VideoMode(800, 600), "SFML works!");
+    Texture texture;
+    texture.loadFromFile("sprites/char.png");
+    Sprite sprite(texture);
+
 
     while (window.isOpen())
     {
