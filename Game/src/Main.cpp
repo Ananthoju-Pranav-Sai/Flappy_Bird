@@ -24,6 +24,9 @@ int main()
 	bird_still.loadFromFile("sprites/bluebird-midflap.png");
 	bird_up.loadFromFile("sprites/bluebird-upflap.png");
 	bird_down.loadFromFile("sprites/bluebird-downflap.png");
+	Sprite Bird(bird_still);
+	Bird.setPosition(300.f, 400.f);
+
 
 	//Sounds
 	Sound sound;
@@ -103,10 +106,9 @@ int main()
 	Pipe_up.rotate(180);
 	Pipe_down.setPosition(700, 448);
 	Pipe_up.setPosition(400, 320);
-	Sprite Bird(bird_still);
+	
 
-	Bird.setPosition(300.f, 400.f);
-
+	
 	//Speeds
 	float Bird_speed = 1;
 	float gravity = 1;
@@ -116,7 +118,7 @@ int main()
 	view1.setCenter(512, 384);
 
 	//Pipes vector
-	std::vector<sf::Sprite> pipes;
+	vector<Sprite> pipes;
 	pipes.push_back(Pipe_up);
 	pipes.push_back(Pipe_down);
 
@@ -163,23 +165,26 @@ int main()
 		if (Bird.getPosition().y < 10.f)
 			Bird.setPosition(Bird.getPosition().x, 10.f);
 
-		if (Bird.getPosition().y >= 700.f)
-			Bird.setPosition(Bird.getPosition().x, 400.f);
+		if (Bird.getPosition().y >= 750.f)
+			Bird.setPosition(Bird.getPosition().x, 750.f);
 
 		if (PipeSpawnTimer < 300)
 			PipeSpawnTimer++;
 
 		if (PipeSpawnTimer >= 300)
 		{
-			switch (rand() % 2)
+			if (rand() % 2 == 0)
 			{
-			case 0:
-				Pipe_up.setPosition(730 + Bird.getPosition().x, 300 - (rand() % 150));
-				pipes.push_back(Pipe_up);
-
-			case 1:
-				Pipe_down.setPosition(730 + Bird.getPosition().x, 350 + (rand() % 150));
-				pipes.push_back(Pipe_down);
+				Sprite pup(pipe);
+				pup.rotate(180);
+				pup.setPosition(730 + Bird.getPosition().x, 300 - (rand() % 150));
+				pipes.push_back(pup);
+			}
+			else
+			{
+				Sprite pd(pipe);
+				pd.setPosition(730 + Bird.getPosition().x, 350 + (rand() % 150));
+				pipes.push_back(pd);
 			}
 			PipeSpawnTimer = 0;
 			for (int i = 0; i < pipes.size(); i++)
@@ -191,7 +196,7 @@ int main()
 		}
 		for (int i = 0; i != pipes.size(); i++)
 		{
-			if (pipes[i].getPosition().x + 50 < view1.getCenter().x - 512)
+			if (Bird.getPosition().x-pipes[i].getPosition().x>500)
 			{
 				pipes.erase(pipes.begin() + i);
 				std::cout << "Erased pipes[" << i << "]" << std::endl;
@@ -203,8 +208,10 @@ int main()
 
 		window.draw(BG);
 		window.draw(Bird);
-		window.draw(Pipe_down);
-		window.draw(Pipe_up);
+		for (int i = 0; i < pipes.size(); i++)
+		{
+			window.draw(pipes[i]);
+		}
 		window.draw(score);
 		vector <int> temp;
 		while (n > 0)
