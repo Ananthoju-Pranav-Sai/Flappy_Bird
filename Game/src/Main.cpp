@@ -33,10 +33,14 @@ int main()
 					Bird.setTexture(bird_down);
 				}
 			}
-			else
+			else if (event.type == Event::KeyReleased)
 			{
-				Bird.setTexture(bird_still);
+				if (event.key.code == Keyboard::Up || event.key.code == Keyboard::Down)
+				{
+					Bird.setTexture(bird_still);
+				}
 			}
+
 		}
 		window.clear();
 		window.draw(BG);
