@@ -163,7 +163,7 @@ int main()
 		{
 			if (rand() % 2 == 0)
 			{
-				Sprite pup(pipe);s
+				Sprite pup(pipe);
 				pup.rotate(180);
 				pup.setPosition(730 + Bird.getPosition().x, 300 - (rand() % 150));
 				pipes.push_back(pup);
