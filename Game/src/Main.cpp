@@ -42,15 +42,6 @@ int main()
 	
 	//Score
 	float currentscore = 1;
-	Font myFont;
-	myFont.loadFromFile("font/flappybird.ttf");
-	Text score;
-	score.setFont(myFont);
-	score.setFillColor(Color::Black);
-	score.setStyle(Text::Bold);
-	score.setString("Score");
-	score.setCharacterSize(75);
-	score.setPosition(0, -25);
 	Texture number;
 	number.loadFromFile("sprites/0.png");
 	Sprite zero(number);
@@ -162,9 +153,6 @@ int main()
 		if (Bird.getPosition().y < 0.f)
 			Bird.setPosition(Bird.getPosition().x, 0.f);
 
-		if (Bird.getPosition().y < 10.f)
-			Bird.setPosition(Bird.getPosition().x, 10.f);
-
 		if (Bird.getPosition().y >= 750.f)
 			Bird.setPosition(Bird.getPosition().x, 750.f);
 
@@ -175,7 +163,7 @@ int main()
 		{
 			if (rand() % 2 == 0)
 			{
-				Sprite pup(pipe);
+				Sprite pup(pipe);s
 				pup.rotate(180);
 				pup.setPosition(730 + Bird.getPosition().x, 300 - (rand() % 150));
 				pipes.push_back(pup);
@@ -187,22 +175,14 @@ int main()
 				pipes.push_back(pd);
 			}
 			PipeSpawnTimer = 0;
-			for (int i = 0; i < pipes.size(); i++)
+			for (int i = 0; i != pipes.size(); i++)
 			{
-				std::cout << pipes[i].getPosition().x << std::endl;
-			}
-			std::cout << view1.getCenter().x -512 << std::endl;
-			std::cout << std::endl;
-		}
-		for (int i = 0; i != pipes.size(); i++)
-		{
-			if (Bird.getPosition().x-pipes[i].getPosition().x>500)
-			{
-				pipes.erase(pipes.begin() + i);
-				std::cout << "Erased pipes[" << i << "]" << std::endl;
+				if (Bird.getPosition().x - pipes[i].getPosition().x > 500)
+				{
+					pipes.erase(pipes.begin() + i);
+				}
 			}
 		}
-
 		int n = currentscore;
 		window.clear();
 
@@ -212,7 +192,6 @@ int main()
 		{
 			window.draw(pipes[i]);
 		}
-		window.draw(score);
 		vector <int> temp;
 		while (n > 0)
 		{
@@ -222,17 +201,12 @@ int main()
 		l = temp.size();
 		for (int i = l-1; i>=0; i--)
 		{
-			m[temp[i]].setPosition(BG.getPosition().x + 24*(l-1-i),50);
+			m[temp[i]].setPosition(view1.getCenter().x+24*(l-1-i),50);
 			window.draw(m[temp[i]]);
 		}
 		window.display();
-		for (int i = 0; i != pipes.size(); i++)
-		{
-			window.draw(pipes[i]);
-		}
 		Bird.move(Bird_speed, gravity);
 		view1.move(Bird_speed, 0);
-		score.move(Bird_speed, 0);
 		BG.move(Bird_speed, 0);
 		currentscore=currentscore+0.1;
 
