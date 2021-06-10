@@ -1,9 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
+#include <cstdlib>
 using namespace std;
 using namespace sf;
 int main()
 {
+	srand(time(NULL));
 	RenderWindow window(sf::VideoMode(1024, 768), "Flappy Bird!");
 	window.setFramerateLimit(60);
 	Texture background;
@@ -14,7 +17,7 @@ int main()
 	bird_still.loadFromFile("sprites/bluebird-midflap.png");
 	bird_up.loadFromFile("sprites/bluebird-upflap.png");
 	bird_down.loadFromFile("sprites/bluebird-downflap.png");
-	
+
 	Texture pipe;
 	pipe.loadFromFile("sprites/pipe-green.png");
 
@@ -33,7 +36,14 @@ int main()
 	View view1(FloatRect(0.f, 0.f, 1024.f, 768.f));
 	view1.setCenter(512, 384);
 
-	
+	//Pipes vector
+	std::vector<sf::Sprite> pipes;
+	pipes.push_back(Pipe_up);
+	pipes.push_back(Pipe_down);
+
+	//SpawnTimer
+	int PipeSpawnTimer = 20;
+
 	while (window.isOpen())
 	{
 		window.setView(view1);
@@ -47,12 +57,12 @@ int main()
 				if (event.key.code == Keyboard::Up)
 				{
 					Bird.setTexture(bird_up);
-					Bird.move(Bird_speed, -50+gravity);
+					Bird.move(Bird_speed, -50 + gravity);
 				}
 				else if (event.key.code == Keyboard::Down)
 				{
 					Bird.setTexture(bird_down);
-					Bird.move(Bird_speed, 50+gravity);
+					Bird.move(Bird_speed, 50 + gravity);
 				}
 			}
 			else if (event.type == Event::KeyReleased)
@@ -69,15 +79,52 @@ int main()
 
 		if (Bird.getPosition().y >= 700.f)
 			Bird.setPosition(Bird.getPosition().x, 400.f);
+
+		if (PipeSpawnTimer < 300)
+			PipeSpawnTimer++;
+
+		if (PipeSpawnTimer >= 300)
+		{
+			switch (rand() % 2)
+			{
+			case 0:
+				Pipe_up.setPosition(730 + Bird.getPosition().x, 300 - (rand() % 150));
+				pipes.push_back(Pipe_up);
+
+			case 1:
+				Pipe_down.setPosition(730 + Bird.getPosition().x, 350 + (rand() % 150));
+				pipes.push_back(Pipe_down);
+			}
+			PipeSpawnTimer = 0;
+			for (int i = 0; i < pipes.size(); i++)
+			{
+				std::cout << pipes[i].getPosition().x << std::endl;
+			}
+			std::cout << view1.getCenter().x -512 << std::endl;
+			std::cout << std::endl;
+		}
+		for (int i = 0; i != pipes.size(); i++)
+		{
+			if (pipes[i].getPosition().x + 50 < view1.getCenter().x - 512)
+			{
+				pipes.erase(pipes.begin() + i);
+				std::cout << "Erased pipes[" << i << "]" << std::endl;
+			}
+		}
+
 		window.clear();
+
 		window.draw(BG);
 		window.draw(Bird);
-		window.draw(Pipe_down);
-		window.draw(Pipe_up);
-		window.display();
+		for (int i = 0; i != pipes.size(); i++)
+		{
+			window.draw(pipes[i]);
+		}
 		Bird.move(Bird_speed, gravity);
 		view1.move(Bird_speed, 0);
 		BG.move(Bird_speed, 0);
+
+		window.display();
 	}
 
 	return 0;
