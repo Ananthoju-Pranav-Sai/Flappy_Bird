@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
+using namespace std;
 using namespace sf;
 int main()
 {
@@ -14,7 +16,8 @@ int main()
 	bird_down.loadFromFile("sprites/bluebird-downflap.png");
 	Sprite Bird(bird_still);
 	Bird.setPosition(100.f, 400.f);
-
+	float Bird_speed = 1;
+	float gravity = 1;
 	while (window.isOpen())
 	{
 		Event event;
@@ -27,10 +30,12 @@ int main()
 				if (event.key.code == Keyboard::Up)
 				{
 					Bird.setTexture(bird_up);
+					Bird.move(Bird_speed, -50+gravity);
 				}
 				else if (event.key.code == Keyboard::Down)
 				{
 					Bird.setTexture(bird_down);
+					Bird.move(Bird_speed, 50+gravity);
 				}
 			}
 			else if (event.type == Event::KeyReleased)
@@ -46,6 +51,7 @@ int main()
 		window.draw(BG);
 		window.draw(Bird);
 		window.display();
+		Bird.move(Bird_speed, gravity);
 	}
 
 	return 0;
