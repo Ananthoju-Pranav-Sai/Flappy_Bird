@@ -47,6 +47,11 @@ int main()
 			}
 
 		}
+		if (Bird.getPosition().y < 10.f)
+			Bird.setPosition(Bird.getPosition().x, 10.f);
+
+		if (Bird.getPosition().y >= 700.f)
+			Bird.setPosition(Bird.getPosition().x, 400.f);
 		window.clear();
 		window.draw(BG);
 		window.draw(Bird);
