@@ -186,10 +186,6 @@ int main()
 			Sprite pd(pipe);
 			pd.setPosition(x-52,y+80);
 			pipes.push_back(pd);
-			if (pipes[0].getPosition().x + 26 == Bird.getPosition().x)
-			{
-				currentscore++;
-			}
 			PipeSpawnTimer = 0;
 			for (int i = 0; i != pipes.size(); i++)
 			{
@@ -197,6 +193,13 @@ int main()
 				{
 					pipes.erase(pipes.begin() + i);
 				}
+			}
+		}
+		for (int i = 0; i < pipes.size(); i=i+2)
+		{
+			if (pipes[i].getPosition().x - 20 == Bird.getPosition().x)
+			{
+				currentscore++;
 			}
 		}
 		
