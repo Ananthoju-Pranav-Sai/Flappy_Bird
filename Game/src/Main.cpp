@@ -10,7 +10,7 @@ using namespace std;
 using namespace sf;
 int main()
 {
-	srand(time(NULL));
+	srand(static_cast<unsigned>(time(0)));
 	RenderWindow window(sf::VideoMode(1024, 768), "Flappy Bird!");
 	window.setFramerateLimit(60);
 
@@ -22,9 +22,9 @@ int main()
 
 	//Bird
 	Texture bird_still, bird_up, bird_down;
-	bird_still.loadFromFile("sprites/bluebird-midflap.png");
-	bird_up.loadFromFile("sprites/bluebird-upflap.png");
-	bird_down.loadFromFile("sprites/bluebird-downflap.png");
+	bird_still.loadFromFile("sprites/bluebird-midflap.png", sf::IntRect(0, 2, 34, 24));
+	bird_up.loadFromFile("sprites/bluebird-upflap.png", sf::IntRect(0, 2, 34, 24));
+	bird_down.loadFromFile("sprites/bluebird-downflap.png", sf::IntRect(0, 2, 34, 24));
 	Sprite Bird(bird_still);
 	float x = 300;
 	float y = 400;
@@ -100,7 +100,7 @@ int main()
 
 	//Pipes
 	Texture pipe;
-	pipe.loadFromFile("sprites/pipe-green.png");
+	pipe.loadFromFile("sprites/pipe-green.png", sf::IntRect(0, 4, 52, 768));
 	
 	//Game-over flag
 	int f = 0;
@@ -115,7 +115,7 @@ int main()
 	float V_x = 1;
 	float V_y = 0;
 	float a_x = 0;
-	float gravity = 0.2;
+	float gravity = 0.2f;
 
 	//View
 	View view1(FloatRect(0.f, 0.f, 1024.f, 768.f));
@@ -125,7 +125,7 @@ int main()
 	vector<Sprite> pipes;
 
 	//SpawnTimer
-	int PipeSpawnTimer = 20;
+	int PipeSpawnTimer = 300;
 
 	int l = 0;
 	while (window.isOpen())
@@ -176,8 +176,8 @@ int main()
 		if (PipeSpawnTimer >= 300 && f==0)
 		{
 			Sprite pup(pipe);
-			float x = 730 + Bird.getPosition().x;
-			float y = 350 + (rand() % 150);
+			float x = 730.f + Bird.getPosition().x;
+			float y = 350.f + float(rand() % 150);
 
 			pup.rotate(180);
 			pup.setPosition(x,y-40);
@@ -200,12 +200,12 @@ int main()
 			}
 		}
 		
-		int n = currentscore;
+		int n = (int)currentscore;
 		window.clear();
 
 		window.draw(BG);
 		window.draw(Bird);
-		for (int i = 0; i < pipes.size(); i++)
+		for (size_t i = 0; i < pipes.size(); i++)
 		{
 			window.draw(pipes[i]);
 		}
@@ -261,9 +261,9 @@ int main()
 				}
 			}
 		}
-		for (int i = 0; i < pipes.size(); i++)
+		for (size_t i = 0; i < pipes.size(); i++)
 		{
-			if ((Bird.getGlobalBounds().intersects(pipes[i].getGlobalBounds()))&&f==0)
+			if ((pipes[i].getGlobalBounds().intersects(Bird.getGlobalBounds()))&&f==0)
 			{
 
 				sound1.setBuffer(hit);
