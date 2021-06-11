@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <Windows.h>
 using namespace std;
 using namespace sf;
 int main()
@@ -25,11 +26,15 @@ int main()
 	bird_up.loadFromFile("sprites/bluebird-upflap.png");
 	bird_down.loadFromFile("sprites/bluebird-downflap.png");
 	Sprite Bird(bird_still);
-	Bird.setPosition(300.f, 400.f);
+	float x = 300;
+	float y = 400;
+	Bird.setPosition(x, y);
 
 
 	//Sounds
 	Sound sound;
+	Sound sound1;
+	Sound sound2;
 	SoundBuffer wing;
 	SoundBuffer swoosh;
 	SoundBuffer die;
@@ -41,7 +46,7 @@ int main()
 	
 	
 	//Score
-	float currentscore = 1;
+	float currentscore = 0;
 	Texture number;
 	number.loadFromFile("sprites/0.png");
 	Sprite zero(number);
@@ -88,6 +93,10 @@ int main()
 		m[i].setPosition(0, 50);
 	}
 
+	//Game-over display
+	Texture over;
+	over.loadFromFile("sprites/gameover.png");
+	Sprite gameover(over);
 
 	//Pipes
 	Texture pipe;
@@ -95,14 +104,23 @@ int main()
 	Sprite Pipe_down(pipe);
 	Sprite Pipe_up(pipe);
 	Pipe_up.rotate(180);
-	Pipe_down.setPosition(700, 448);
+	Pipe_down.setPosition(400-52, 448);
 	Pipe_up.setPosition(400, 320);
 	
-
+	//Game-over flag
+	int f = 0;
 	
+	//base
+	Texture base;
+	base.loadFromFile("sprites/base.png");
+	Sprite Base(base);
+	Base.setPosition(0, 700);
+
 	//Speeds
-	float Bird_speed = 1;
-	float gravity = 1;
+	float V_x = 1;
+	float V_y = 0;
+	float a_x = 0;
+	float gravity = 0.2;
 
 	//View
 	View view1(FloatRect(0.f, 0.f, 1024.f, 768.f));
@@ -130,50 +148,53 @@ int main()
 				if (event.key.code == Keyboard::Up)
 				{
 					Bird.setTexture(bird_up);
+					Bird.rotate(-45);
 					sound.setBuffer(wing);
 					sound.play();
-					Bird.move(Bird_speed, -50+gravity);
-				}
-				else if (event.key.code == Keyboard::Down)
-				{
-					Bird.setTexture(bird_down);
-					sound.setBuffer(swoosh);
-					sound.play();
-					Bird.move(Bird_speed, 50+gravity);
+					V_y = -10;
 				}
 			}
 			else if (event.type == Event::KeyReleased)
 			{
-				if (event.key.code == Keyboard::Up || event.key.code == Keyboard::Down)
+				if (event.key.code == Keyboard::Up)
 				{
 					Bird.setTexture(bird_still);
+					Bird.rotate(45);
+					V_y = 0;
+					Bird.setRotation(0);
 				}
 			}
 		}
+		V_y = V_y + gravity;
 		if (Bird.getPosition().y < 0.f)
 			Bird.setPosition(Bird.getPosition().x, 0.f);
 
-		if (Bird.getPosition().y >= 750.f)
-			Bird.setPosition(Bird.getPosition().x, 750.f);
-
+		if (Bird.getPosition().y >= 690.f)
+		{
+			f = 1;
+			Bird.setPosition(Bird.getPosition().x, 690.f);
+		}
 		if (PipeSpawnTimer < 300)
 			PipeSpawnTimer++;
-
+		if (pipes[0].getPosition().x + 26 == Bird.getPosition().x)
+		{
+			currentscore++;
+		}
 		if (PipeSpawnTimer >= 300)
 		{
-			if (rand() % 2 == 0)
-			{
-				Sprite pup(pipe);
-				pup.rotate(180);
-				pup.setPosition(730 + Bird.getPosition().x, 300 - (rand() % 150));
-				pipes.push_back(pup);
-			}
-			else
-			{
-				Sprite pd(pipe);
-				pd.setPosition(730 + Bird.getPosition().x, 350 + (rand() % 150));
-				pipes.push_back(pd);
-			}
+			Sprite pup(pipe);
+			float x = 730 + Bird.getPosition().x;
+			float y = 350 + (rand() % 150);
+
+			pup.rotate(180);
+			pup.setPosition(x,y-20);
+			pipes.push_back(pup);
+		
+			Sprite pd(pipe);
+			pd.setPosition(x-52,y+80);
+			pipes.push_back(pd);
+
+		
 			PipeSpawnTimer = 0;
 			for (int i = 0; i != pipes.size(); i++)
 			{
@@ -199,17 +220,63 @@ int main()
 			n = n / 10;
 		}
 		l = temp.size();
-		for (int i = l-1; i>=0; i--)
+		if(currentscore>0)
+			for (int i = l-1; i>=0; i--)
+			{
+				m[temp[i]].setPosition(view1.getCenter().x+24*(l-1-i),50);
+				window.draw(m[temp[i]]);
+			}
+		if (currentscore == 0)
 		{
-			m[temp[i]].setPosition(view1.getCenter().x+24*(l-1-i),50);
-			window.draw(m[temp[i]]);
+			m[0].setPosition(view1.getCenter().x,50);
+			window.draw(m[0]);
 		}
+		if (f == 1)
+		{	
+			gameover.setPosition(view1.getCenter());	
+			window.draw(gameover);
+		}
+		window.draw(Base);
 		window.display();
-		Bird.move(Bird_speed, gravity);
-		view1.move(Bird_speed, 0);
-		BG.move(Bird_speed, 0);
-		currentscore=currentscore+0.1;
+		if (f == 0)
+		{
+			Bird.move(V_x, V_y);
+			view1.move(V_x, 0);
+			BG.move(V_x, 0);
+			Base.move(V_x, 0);;
 
+		}
+		if (f == 1)
+		{
+			Event e;
+			while (window.pollEvent(e))
+			{
+				if (e.type == Event::KeyPressed)
+				{
+					if (e.key.code == Keyboard::Enter)
+					{
+						window.close();
+						main();
+					}
+					if (e.key.code == Keyboard::Escape)
+					{
+						window.close();
+					}
+				}
+			}
+		}
+		for (int i = 0; i < pipes.size(); i++)
+		{
+			if ((Bird.getGlobalBounds().intersects(pipes[i].getGlobalBounds())))
+			{
+
+				sound1.setBuffer(hit);
+				sound1.play();
+				sound2.setBuffer(die);
+				sound2.play();
+				f = 1;
+			}
+		}
 	}
 
 	return 0;
