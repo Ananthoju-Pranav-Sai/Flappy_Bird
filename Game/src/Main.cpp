@@ -101,11 +101,6 @@ int main()
 	//Pipes
 	Texture pipe;
 	pipe.loadFromFile("sprites/pipe-green.png");
-	Sprite Pipe_down(pipe);
-	Sprite Pipe_up(pipe);
-	Pipe_up.rotate(180);
-	Pipe_down.setPosition(400-52, 448);
-	Pipe_up.setPosition(400, 320);
 	
 	//Game-over flag
 	int f = 0;
@@ -128,8 +123,6 @@ int main()
 
 	//Pipes vector
 	vector<Sprite> pipes;
-	pipes.push_back(Pipe_up);
-	pipes.push_back(Pipe_down);
 
 	//SpawnTimer
 	int PipeSpawnTimer = 20;
@@ -172,29 +165,31 @@ int main()
 		if (Bird.getPosition().y >= 690.f)
 		{
 			f = 1;
-			Bird.setPosition(Bird.getPosition().x, 690.f);
+			sound1.setBuffer(hit);
+			sound1.play();
+			Bird.move(Bird.getPosition().x, 690 - Bird.getPosition().x);
+			sound2.setBuffer(die);
+			sound2.play();
 		}
 		if (PipeSpawnTimer < 300)
 			PipeSpawnTimer++;
-		if (pipes[0].getPosition().x + 26 == Bird.getPosition().x)
-		{
-			currentscore++;
-		}
-		if (PipeSpawnTimer >= 300)
+		if (PipeSpawnTimer >= 300 && f==0)
 		{
 			Sprite pup(pipe);
 			float x = 730 + Bird.getPosition().x;
 			float y = 350 + (rand() % 150);
 
 			pup.rotate(180);
-			pup.setPosition(x,y-20);
+			pup.setPosition(x,y-40);
 			pipes.push_back(pup);
 		
 			Sprite pd(pipe);
 			pd.setPosition(x-52,y+80);
 			pipes.push_back(pd);
-
-		
+			if (pipes[0].getPosition().x + 26 == Bird.getPosition().x)
+			{
+				currentscore++;
+			}
 			PipeSpawnTimer = 0;
 			for (int i = 0; i != pipes.size(); i++)
 			{
@@ -204,6 +199,7 @@ int main()
 				}
 			}
 		}
+		
 		int n = currentscore;
 		window.clear();
 
@@ -267,11 +263,12 @@ int main()
 		}
 		for (int i = 0; i < pipes.size(); i++)
 		{
-			if ((Bird.getGlobalBounds().intersects(pipes[i].getGlobalBounds())))
+			if ((Bird.getGlobalBounds().intersects(pipes[i].getGlobalBounds()))&&f==0)
 			{
 
 				sound1.setBuffer(hit);
 				sound1.play();
+				//Bird.move(Bird.getPosition().x, 690-Bird.getPosition().x);
 				sound2.setBuffer(die);
 				sound2.play();
 				f = 1;
